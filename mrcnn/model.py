@@ -1831,11 +1831,11 @@ class ImageCallback(keras.callbacks.Callback):
                              self.train_dataset.class_names, figsize=(16, 16), ax=ax)
         return fig_to_array(ax.figure)
 
-    def on_epoch_begin(self, epoch, logs):
-        print('peekaboo')
-        labeled_images = [self.label_image(i) for i in self.image_ids]
-        run.history.row["img_segmentations"] = [wandb.Image(img, caption="Caption", mode='RGBA') for img in labeled_images]
-        run.history.add()
+    #def on_epoch_begin(self, epoch, logs):
+    #    print('peekaboo')
+    #    labeled_images = [self.label_image(i) for i in self.image_ids]
+    #    run.history.row["img_segmentations"] = [wandb.Image(img, caption="Caption", mode='RGBA') for img in labeled_images]
+    #    run.history.add()
 
     def on_epoch_end(self, epoch, logs):
         print('peekaboo')
@@ -2344,7 +2344,7 @@ class MaskRCNN():
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
             ImageCallback(run, val_dataset, train_dataset),
-            
+            wandb.callbacks.Keras(),
         ]
 
         # Train
