@@ -2120,7 +2120,7 @@ class MaskRCNN():
         """
         import h5py
         from keras.engine import topology
-
+        print("D:> path: ", filepath)
         if exclude:
             by_name = True
 
@@ -2344,7 +2344,7 @@ class MaskRCNN():
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
             ImageCallback(run, val_dataset, train_dataset),
-            wandb.callbacks.Keras(),
+            
         ]
 
         # Train
