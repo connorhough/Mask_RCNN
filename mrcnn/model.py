@@ -27,7 +27,7 @@ from mrcnn import visualize
 import wandb
 from wandb.keras import WandbCallback
 import matplotlib.pyplot as plt
-from shapes_config import InferenceConfig
+from coco_config import InferenceConfig
 
 
 from mrcnn import utils
@@ -2489,7 +2489,7 @@ class MaskRCNN():
                 run,
                 val_dataset,
                 train_dataset),
-            WandbCallback(),
+            #WandbCallback(),
         ]
 
         # Train
