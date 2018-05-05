@@ -497,7 +497,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=2,
+                    epochs=10,
                     layers='heads',
                     augmentation=augmentation)
 

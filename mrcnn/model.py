@@ -25,6 +25,7 @@ import keras.engine as KE
 import keras.models as KM
 from mrcnn import visualize
 import wandb
+from wandb.keras import WandbCallback
 import matplotlib.pyplot as plt
 from shapes_config import InferenceConfig
 
@@ -2488,7 +2489,7 @@ class MaskRCNN():
                 run,
                 val_dataset,
                 train_dataset),
-            wandb.callbacks.Keras(),
+            WandbCallback(),
         ]
 
         # Train
