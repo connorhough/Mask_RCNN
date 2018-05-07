@@ -1932,7 +1932,6 @@ class ImageCallback(keras.callbacks.Callback):
         return fig_to_array(ax.figure)
 
     def on_epoch_end(self, epoch, logs):
-        print("D:> Inside ImageCallback() on_epoch_end()")
         labeled_images = [self.label_image(i) for i in self.image_ids]
         self.run.history.row["img_segmentations"] = [
             wandb.Image(
@@ -1944,9 +1943,7 @@ class ImageCallback(keras.callbacks.Callback):
 class PerformanceCallback(keras.callbacks.Callback):
     def __init__(self, run):
         self.run = run
-        print("D:> IN PERFORMANCE CALLBACK")
     def on_epoch_end(self, epoch, logs):
-        print("D:> logs keys: ", logs.keys())
         self.run.history.row.update(logs)
         self.run.history.add()
 
