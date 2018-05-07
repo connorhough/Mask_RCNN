@@ -1931,18 +1931,24 @@ class ImageCallback(keras.callbacks.Callback):
             ax=ax)
         return fig_to_array(ax.figure)
 
-    def on_epoch_begin(self, epoch, logs):
-        print("D:> Inside ImageCallback() on_epoch_begin()")
-
     def on_epoch_end(self, epoch, logs):
         print("D:> Inside ImageCallback() on_epoch_end()")
         labeled_images = [self.label_image(i) for i in self.image_ids]
-        run.history.row["img_segmentations"] = [
+        self.run.history.row["img_segmentations"] = [
             wandb.Image(
                 img,
                 caption="Caption",
                 mode='RGBA') for img in labeled_images]
-        run.history.add()
+        self.run.history.add()
+
+class PerformanceCallback(keras.callbacks.Callback):
+    def __init__(self, run):
+        self.run = run
+        print("D:> IN PERFORMANCE CALLBACK")
+    def on_epoch_end(self, epoch, logs):
+        print("D:> logs keys: ", logs.keys())
+        self.run.history.row.update(logs)
+        self.run.history.add()
 
 ############################################################
 #  MaskRCNN Class
@@ -2489,6 +2495,7 @@ class MaskRCNN():
                 run,
                 val_dataset,
                 train_dataset),
+            PerformanceCallback(run),
             #WandbCallback(),
         ]
 

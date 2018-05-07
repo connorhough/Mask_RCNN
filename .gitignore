@@ -5,3 +5,5 @@ mask_rcnn_coco.h5
 
 wandb
 wandb-debug.log
+data
+*.h5
