@@ -1894,10 +1894,16 @@ def data_generator(
 ############################################################
 # WandB Stuff
 ############################################################
+import scipy
+
 run = wandb.init()
 
 inference_config = InferenceConfig()
-
+config_dict = inference_config.get_config_dict()
+configs_of_interest = ['BACKBONE', 'GRADIENT_CLIP_NORM', 'LEARNING_MOMENTUM', 'LEARNING_RATE',
+                        'WEIGHT_DECAY']
+dic_i_want = {k: config_dict[k] for k in configs_of_interest}
+wandb.config.update(dic_i_want)
 
 def fig_to_array(fig):
     fig.canvas.draw()
@@ -1906,7 +1912,6 @@ def fig_to_array(fig):
     buf.shape = (w, h, 4)
     buf = np.roll(buf, 3, axis=2)
     return buf
-
 
 class ImageCallback(keras.callbacks.Callback):
     def __init__(self, run, val_dataset, train_dataset):
@@ -1935,7 +1940,7 @@ class ImageCallback(keras.callbacks.Callback):
         labeled_images = [self.label_image(i) for i in self.image_ids]
         self.run.history.row["img_segmentations"] = [
             wandb.Image(
-                img,
+                scipy.misc.imresize(img, 50),
                 caption="Caption",
                 mode='RGBA') for img in labeled_images]
         self.run.history.add()
