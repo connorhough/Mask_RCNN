@@ -41,7 +41,7 @@ class Config(object):
     # Validation stats are also calculated at each epoch end and they
     # might take a while, so don't set this too small to avoid spending
     # a lot of time on validation stats.
-    STEPS_PER_EPOCH = 20
+    STEPS_PER_EPOCH = 70
 
     # Number of validation steps to run at the end of every training epoch.
     # A bigger number improves accuracy of validation stats, but slows
@@ -188,7 +188,7 @@ class Config(object):
     TRAIN_BN = False  # Defaulting to False since batch size is often small
 
     # Gradient norm clipping
-    GRADIENT_CLIP_NORM = 5.0
+    GRADIENT_CLIP_NORM = 10.0
 
     def __init__(self):
         """Set values of computed attributes."""
