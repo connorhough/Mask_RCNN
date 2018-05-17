@@ -1901,9 +1901,9 @@ config_dict = inference_config.get_config_dict()
 configs_of_interest = ['BACKBONE', 'GRADIENT_CLIP_NORM', 'LEARNING_MOMENTUM', 'LEARNING_RATE',
                         'WEIGHT_DECAY', 'STEPS_PER_EPOCH']
 dic_i_want = {k: config_dict[k] for k in configs_of_interest}
-run = wandb.init(config=dic_i_want)
+run = wandb.init()
 
-wandb.log(dic_i_want)
+wandb.config.update(dic_i_want)
 
 def fig_to_array(fig):
     fig.canvas.draw()
