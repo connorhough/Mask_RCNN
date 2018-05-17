@@ -41,16 +41,16 @@ class Config(object):
     # Validation stats are also calculated at each epoch end and they
     # might take a while, so don't set this too small to avoid spending
     # a lot of time on validation stats.
-    STEPS_PER_EPOCH = 70
+    STEPS_PER_EPOCH = 1000
 
     # Number of validation steps to run at the end of every training epoch.
     # A bigger number improves accuracy of validation stats, but slows
     # down the training.
-    VALIDATION_STEPS = 20
+    VALIDATION_STEPS = 50
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101
-    BACKBONE = "resnet50"
+    BACKBONE = "resnet101"
 
     # The strides of each layer of the FPN Pyramid. These values
     # are based on a Resnet101 backbone.
@@ -188,7 +188,7 @@ class Config(object):
     TRAIN_BN = False  # Defaulting to False since batch size is often small
 
     # Gradient norm clipping
-    GRADIENT_CLIP_NORM = 10.0
+    GRADIENT_CLIP_NORM = 5.0
 
     def __init__(self):
         """Set values of computed attributes."""
@@ -214,9 +214,9 @@ class Config(object):
         print("\n")
 
     def get_config_dict(self):
-        """Return Configuration values as a dictionary for the sake of syncing with wandb"""
-        d = {}
-        for a in dir(self):
-            if not a.startswith("__") and not callable(getattr(self, a)):
-                d[a] = getattr(self, a)
-        return d
+         """Return Configuration values as a dictionary for the sake of syncing with wandb"""
+         d = {}
+         for a in dir(self):
+             if not a.startswith("__") and not callable(getattr(self, a)):
+                 d[a] = getattr(self, a)
+         return d

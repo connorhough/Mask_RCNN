@@ -1896,14 +1896,14 @@ def data_generator(
 ############################################################
 import scipy
 
-run = wandb.init()
-
 inference_config = InferenceConfig()
 config_dict = inference_config.get_config_dict()
 configs_of_interest = ['BACKBONE', 'GRADIENT_CLIP_NORM', 'LEARNING_MOMENTUM', 'LEARNING_RATE',
-                        'WEIGHT_DECAY']
+                        'WEIGHT_DECAY', 'STEPS_PER_EPOCH']
 dic_i_want = {k: config_dict[k] for k in configs_of_interest}
-wandb.config.update(dic_i_want)
+run = wandb.init(config=dic_i_want)
+
+wandb.log(dic_i_want)
 
 def fig_to_array(fig):
     fig.canvas.draw()
@@ -1937,6 +1937,7 @@ class ImageCallback(keras.callbacks.Callback):
         return fig_to_array(ax.figure)
 
     def on_epoch_end(self, epoch, logs):
+        print("Uploading images to wandb...")
         labeled_images = [self.label_image(i) for i in self.image_ids]
         self.run.history.row["img_segmentations"] = [
             wandb.Image(
@@ -1949,6 +1950,7 @@ class PerformanceCallback(keras.callbacks.Callback):
     def __init__(self, run):
         self.run = run
     def on_epoch_end(self, epoch, logs):
+        print("Uploading metrics to wandb...")
         self.run.history.row.update(logs)
         self.run.history.add()
 

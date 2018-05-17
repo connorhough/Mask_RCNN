@@ -86,6 +86,8 @@ class CocoConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 80  # COCO has 80 classes
 
+    STEPS_PER_EPOCH=5
+
 
 ############################################################
 #  Dataset
@@ -497,7 +499,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=2,
+                    epochs=1,
                     layers='heads',
                     augmentation=augmentation)
 
@@ -506,7 +508,7 @@ if __name__ == '__main__':
         print("Fine tune Resnet stage 4 and up")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=6,
+                    epochs=1,
                     layers='4+',
                     augmentation=augmentation)
 
@@ -515,7 +517,7 @@ if __name__ == '__main__':
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=8,
+                    epochs=1,
                     layers='all',
                     augmentation=augmentation)
 
