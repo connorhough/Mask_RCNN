@@ -31,7 +31,12 @@ import os
 import sys
 import time
 import numpy as np
+import scipy
 import imgaug  # https://github.com/aleju/imgaug (pip3 install imageaug)
+import wandb
+import matplotlib.pyplot as plt
+from mrcnn import visualize
+import keras
 
 # Download and install the Python COCO tools from https://github.com/waleedka/coco
 # That's a fork from the original https://github.com/pdollar/coco with a bug
@@ -86,8 +91,81 @@ class CocoConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 80  # COCO has 80 classes
 
-    STEPS_PER_EPOCH=5
+    # Halve STEPS_PER_EPOCH to speed up training time for the sake of demonstration
+    STEPS_PER_EPOCH = 50
 
+    # MODEL TUNING
+#    BACKBONE = os.environ.get('BACKBONE')
+#    GRADIENT_CLIP_NORM = float(os.environ.get('GRADIENT_CLIP_NORM'))
+#    LEARNING_RATE = float(os.environ.get('LEARNING_RATE'))
+#    WEIGHT_DECAY = float(os.environ.get('WEIGHT_DECAY'))
+    BACKBONE='resnet50'
+    GRADIENT_CLIP_NORM=5.0
+    LEARNING_RATE=0.01
+    WEIGHT_DECAY=0.001
+
+############################################################
+# WANDB
+############################################################
+
+_config = CocoConfig()
+
+config_dict = _config.get_config_dict()
+configs_of_interest = ['BACKBONE', 'GRADIENT_CLIP_NORM', 'LEARNING_MOMENTUM', 'LEARNING_RATE',
+                        'WEIGHT_DECAY', 'STEPS_PER_EPOCH']
+dic_i_want = {k: config_dict[k] for k in configs_of_interest}
+run = wandb.init()
+
+run.history.row.update(dic_i_want)
+
+def fig_to_array(fig):
+    fig.canvas.draw()
+    w, h = fig.canvas.get_width_height()
+    buf = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8)
+    buf.shape = (w, h, 4)
+    buf = np.roll(buf, 3, axis=2)
+    return buf
+
+class ImageCallback(keras.callbacks.Callback):
+    def __init__(self, run, dataset_val, dataset_train):
+        self.run = run
+        self.dataset_val = dataset_val
+        self.dataset_train = dataset_train
+        self.image_ids = dataset_val.image_ids[:3]
+
+    def label_image(self, image_id):
+        original_image, image_meta, gt_class_id, gt_bbox, gt_mask = load_image_gt(
+            self.dataset_val, inference_config, image_id, use_mini_mask=False)
+        _, ax = plt.subplots(figsize=(16, 16)) 
+        visualize.display_instances(
+            original_image,
+            gt_bbox,
+            gt_mask,
+            gt_class_id,
+            self.dataset_train.class_names,
+            figsize=(
+                16,  
+                16), 
+            ax=ax)
+        return fig_to_array(ax.figure)
+
+    def on_epoch_end(self, epoch, logs):
+        print("Uploading images to wandb...")
+        labeled_images = [self.label_image(i) for i in self.image_ids]
+        self.run.history.row["img_segmentations"] = [
+            wandb.Image(
+                scipy.misc.imresize(img, 50),
+                caption="Caption",
+                mode='RGBA') for img in labeled_images]
+        self.run.history.add()
+
+class PerformanceCallback(keras.callbacks.Callback):
+    def __init__(self, run):
+        self.run = run
+    def on_epoch_end(self, epoch, logs):
+        print("Uploading metrics to wandb...")
+        self.run.history.row.update(logs)
+        self.run.history.add()
 
 ############################################################
 #  Dataset
@@ -451,10 +529,22 @@ if __name__ == '__main__':
         config = InferenceConfig()
     config.display()
 
+     
+    dataset_train = CocoDataset()
+    dataset_val = CocoDataset()
+    
+    callbacks = [
+            ImageCallback(
+                run,
+                dataset_val,
+                dataset_train),
+            PerformanceCallback(run)
+    ]
+
     # Create model
     if args.command == "train":
         model = modellib.MaskRCNN(mode="training", config=config,
-                                  model_dir=args.logs)
+                                  model_dir=args.logs, callbacks=callbacks)
     else:
         model = modellib.MaskRCNN(mode="inference", config=config,
                                   model_dir=args.logs)
@@ -479,13 +569,11 @@ if __name__ == '__main__':
     if args.command == "train":
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
-        dataset_train = CocoDataset()
         dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=args.download)
         dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
         # Validation dataset
-        dataset_val = CocoDataset()
         dataset_val.load_coco(args.dataset, "minival", year=args.year, auto_download=args.download)
         dataset_val.prepare()
 
@@ -499,7 +587,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=1,
+                    epochs=10,
                     layers='heads',
                     augmentation=augmentation)
 
@@ -508,7 +596,7 @@ if __name__ == '__main__':
         print("Fine tune Resnet stage 4 and up")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=1,
+                    epochs=30,
                     layers='4+',
                     augmentation=augmentation)
 
@@ -517,7 +605,7 @@ if __name__ == '__main__':
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=1,
+                    epochs=40,
                     layers='all',
                     augmentation=augmentation)
 
