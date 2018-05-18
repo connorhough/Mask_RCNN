@@ -1,9 +1,9 @@
 #!/bin/bash
 
 declare -a backbones=("resnet50" "resnet101")
-declare -a gradient_clip_norms=(5 10 15)
-declare -a learning_rates=(0.1 0.01 0.001 0.0001)
-declare -a weight_decays=(0.0001 0.001)
+declare -a gradient_clip_norms=(5 10)
+declare -a learning_rates=(0.01 0.001 0.0001)
+declare -a weight_decays=(0.0001)
 
 for i in "${backbones[@]}"
 do
@@ -22,7 +22,7 @@ do
                 echo "LEARNING_RATE: " "$LEARNING_RATE"
                 export WEIGHT_DECAY=$l
                 echo "WEIGHT_DECAY: " "$WEIGHT_DECAY"
-                wandb run coco.py train --model=imagenet --dataset=../../data/coco/
+                wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco/
                 wait
             done
         done

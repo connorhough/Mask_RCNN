@@ -94,7 +94,7 @@ class CocoConfig(Config):
 
     # Halve STEPS_PER_EPOCH to speed up training time for the sake of demonstration
     STEPS_PER_EPOCH = 50
-
+    VALIDATION_STEPS = 10 
     # MODEL TUNING
     if os.environ.get('BACKBONE'):
         BACKBONE = os.environ.get('BACKBONE')
@@ -119,15 +119,15 @@ class CocoConfig(Config):
 # WANDB
 ############################################################
 
+run = wandb.init()
 _config = CocoConfig()
 
 config_dict = _config.get_config_dict()
 configs_of_interest = ['BACKBONE', 'GRADIENT_CLIP_NORM', 'LEARNING_MOMENTUM', 'LEARNING_RATE',
                         'WEIGHT_DECAY', 'STEPS_PER_EPOCH']
-dic_i_want = {k: config_dict[k] for k in configs_of_interest}
-run = wandb.init()
 
-run.history.row.update(dic_i_want)
+run.history.row.update({k: config_dict[k] for k in configs_of_interest})
+
 
 def fig_to_array(fig):
     fig.canvas.draw()
