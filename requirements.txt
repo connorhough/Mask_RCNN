@@ -10,5 +10,6 @@ opencv-python
 h5py
 imgaug
 IPython[all]
+cython
 pycocotools
 wandb
