@@ -35,6 +35,7 @@ import scipy
 import imgaug  # https://github.com/aleju/imgaug (pip3 install imageaug)
 import wandb
 import matplotlib.pyplot as plt
+from mrcnn import visualize
 import keras
 
 # Download and install the Python COCO tools from https://github.com/waleedka/coco
@@ -56,9 +57,7 @@ ROOT_DIR = os.path.abspath("../../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn import visualize
 from mrcnn.config import Config
-from mrcnn.model import load_image_gt
 from mrcnn import model as modellib, utils
 
 # Path to trained weights file
@@ -96,6 +95,8 @@ class CocoConfig(Config):
     STEPS_PER_EPOCH = 50
 
     # MODEL TUNING
+    
+    '''
     if os.environ.get('BACKBONE'):
         BACKBONE = os.environ.get('BACKBONE')
     if os.environ.get('GRADIENT_CLIP_NORM'):
@@ -104,7 +105,7 @@ class CocoConfig(Config):
         LEARNING_RATE = float(os.environ.get('LEARNING_RATE'))
     if os.environ.get('WEIGHT_DECAY'):
         WEIGHT_DECAY = float(os.environ.get('WEIGHT_DECAY'))
-    
+    '''
 
     def get_config_dict(self):
         """Return Configuration values as a dictionary for the sake of syncing with wandb"""
@@ -119,15 +120,13 @@ class CocoConfig(Config):
 # WANDB
 ############################################################
 
-_config = CocoConfig()
+run = wandb.init()
+config = CocoConfig()
 
-config_dict = _config.get_config_dict()
+config_dict = config.get_config_dict()
 configs_of_interest = ['BACKBONE', 'GRADIENT_CLIP_NORM', 'LEARNING_MOMENTUM', 'LEARNING_RATE',
                         'WEIGHT_DECAY', 'STEPS_PER_EPOCH']
-dic_i_want = {k: config_dict[k] for k in configs_of_interest}
-run = wandb.init()
-
-run.history.row.update(dic_i_want)
+run.history.row.update({k: config_dict[k] for k in configs_of_interest})
 
 def fig_to_array(fig):
     fig.canvas.draw()
@@ -146,7 +145,7 @@ class ImageCallback(keras.callbacks.Callback):
 
     def label_image(self, image_id):
         original_image, image_meta, gt_class_id, gt_bbox, gt_mask = load_image_gt(
-            self.dataset_val, _config, image_id, use_mini_mask=False)
+            self.dataset_val, inference_config, image_id, use_mini_mask=False)
         _, ax = plt.subplots(figsize=(16, 16)) 
         visualize.display_instances(
             original_image,
@@ -158,7 +157,9 @@ class ImageCallback(keras.callbacks.Callback):
                 16,  
                 16), 
             ax=ax)
-        return fig_to_array(ax.figure)
+        image = fig_to_array(ax.figure)
+        plt.close(figure)
+        return image
 
     def on_epoch_end(self, epoch, logs):
         print("Uploading images to wandb...")
@@ -168,8 +169,6 @@ class ImageCallback(keras.callbacks.Callback):
                 scipy.misc.imresize(img, 50),
                 caption="Caption",
                 mode='RGBA') for img in labeled_images]
-
-class PerformanceCallback(keras.callbacks.Callback):
     def __init__(self, run):
         self.run = run
     def on_epoch_end(self, epoch, logs):
@@ -518,6 +517,15 @@ if __name__ == '__main__':
                         metavar="<True|False>",
                         help='Automatically download and unzip MS-COCO files (default=False)',
                         type=bool)
+    parser.add_argument('--backbone', required=False,
+                        default="resnet101")
+
+    parser.add_argument('--grad_clip_norm', required=False,
+                        default=5.0)
+
+    parser.add_argument('--learning_rate', required=False,
+                        default=0.001)
+    
     args = parser.parse_args()
     print("Command: ", args.command)
     print("Model: ", args.model)
@@ -529,6 +537,9 @@ if __name__ == '__main__':
     # Configurations
     if args.command == "train":
         config = CocoConfig()
+        config.BACKBONE = args.backbone
+        config.GRADIENT_CLIP_NORM = args.grad_clip_norm
+        config.LEARNING_RATE = args.learning_rate
     else:
         class InferenceConfig(CocoConfig):
             # Set batch size to 1 since we'll be running inference on
@@ -542,8 +553,6 @@ if __name__ == '__main__':
      
     dataset_train = CocoDataset()
     dataset_val = CocoDataset()
-    dataset_val.load_coco(args.dataset, "minival", year=args.year, auto_download=args.download)
-    dataset_val.prepare()
     
     callbacks = [
             ImageCallback(
