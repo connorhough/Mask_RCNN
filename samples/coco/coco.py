@@ -35,7 +35,6 @@ import scipy
 import imgaug  # https://github.com/aleju/imgaug (pip3 install imageaug)
 import wandb
 import matplotlib.pyplot as plt
-from mrcnn import visualize
 import keras
 
 # Download and install the Python COCO tools from https://github.com/waleedka/coco
@@ -57,7 +56,9 @@ ROOT_DIR = os.path.abspath("../../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
+from mrcnn import visualize
 from mrcnn.config import Config
+from mrcnn.model import load_image_gt
 from mrcnn import model as modellib, utils
 
 # Path to trained weights file
@@ -95,14 +96,15 @@ class CocoConfig(Config):
     STEPS_PER_EPOCH = 50
 
     # MODEL TUNING
-#    BACKBONE = os.environ.get('BACKBONE')
-#    GRADIENT_CLIP_NORM = float(os.environ.get('GRADIENT_CLIP_NORM'))
-#    LEARNING_RATE = float(os.environ.get('LEARNING_RATE'))
-#    WEIGHT_DECAY = float(os.environ.get('WEIGHT_DECAY'))
-    BACKBONE='resnet50'
-    GRADIENT_CLIP_NORM=5.0
-    LEARNING_RATE=0.01
-    WEIGHT_DECAY=0.001
+    if os.environ.get('BACKBONE'):
+        BACKBONE = os.environ.get('BACKBONE')
+    if os.environ.get('GRADIENT_CLIP_NORM'):
+        GRADIENT_CLIP_NORM = float(os.environ.get('GRADIENT_CLIP_NORM'))
+    if os.environ.get('LEARNING_RATE'):
+        LEARNING_RATE = float(os.environ.get('LEARNING_RATE'))
+    if os.environ.get('WEIGHT_DECAY'):
+        WEIGHT_DECAY = float(os.environ.get('WEIGHT_DECAY'))
+    
 
     def get_config_dict(self):
         """Return Configuration values as a dictionary for the sake of syncing with wandb"""
@@ -144,7 +146,7 @@ class ImageCallback(keras.callbacks.Callback):
 
     def label_image(self, image_id):
         original_image, image_meta, gt_class_id, gt_bbox, gt_mask = load_image_gt(
-            self.dataset_val, inference_config, image_id, use_mini_mask=False)
+            self.dataset_val, _config, image_id, use_mini_mask=False)
         _, ax = plt.subplots(figsize=(16, 16)) 
         visualize.display_instances(
             original_image,
@@ -166,7 +168,6 @@ class ImageCallback(keras.callbacks.Callback):
                 scipy.misc.imresize(img, 50),
                 caption="Caption",
                 mode='RGBA') for img in labeled_images]
-        self.run.history.add()
 
 class PerformanceCallback(keras.callbacks.Callback):
     def __init__(self, run):
@@ -541,6 +542,8 @@ if __name__ == '__main__':
      
     dataset_train = CocoDataset()
     dataset_val = CocoDataset()
+    dataset_val.load_coco(args.dataset, "minival", year=args.year, auto_download=args.download)
+    dataset_val.prepare()
     
     callbacks = [
             ImageCallback(
