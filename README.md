@@ -9,7 +9,7 @@ This is a fork of the [matterport/mask_rcnn repo](github.com/matterport/mask-rcn
 We have also streamlined the setup process of the original repo to get it up and running quickly on the tensorflow_p36 environment of the aws Deep Learning AMI (Ubuntu) Version 9.0. To do so, start up an instance with at least 125 GB of storage, ssh into it, and do:
 
 1. `source activate tensorflow_p36`
-2. `git clone https://github.com/connorhough/mask-rcnn`
+2. `git clone https://github.com/connorhough/mask_rcnn`
 3. `cd mask_rcnn`
 4. `pip install -r requirements.txt`
 5. `python setup.py install`
