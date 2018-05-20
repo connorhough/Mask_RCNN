@@ -93,8 +93,8 @@ class CocoConfig(Config):
     NUM_CLASSES = 1 + 80  # COCO has 80 classes
 
     # Halve STEPS_PER_EPOCH to speed up training time for the sake of demonstration
-    STEPS_PER_EPOCH = 50
-    VALIDATION_STEPS = 10 
+    STEPS_PER_EPOCH = 500
+
     # MODEL TUNING
     if os.environ.get('BACKBONE'):
         BACKBONE = os.environ.get('BACKBONE')
