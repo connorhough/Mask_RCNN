@@ -17,6 +17,6 @@ We have also streamlined the setup process of the original repo to get it up and
 7. `wandb init`
 8. `wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco --download=True`
 
-For future runs, use the above command without the `--download=True` argument
+After the first run, use the above command without the `--download=True` argument
 
 The parameter sweep can be run with `bash sweep.sh`
