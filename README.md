@@ -14,7 +14,7 @@ We have also streamlined the setup process of the original repo to get it up and
 4. `pip install cython`
 5. `pip install -r requirements.txt`
 6. `python setup.py install`
-7. `wandb init`
+7. `wandb init`, then follow the init steps
 8. `wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco --download=True`
 
 After the first run, use the above command without the `--download=True` argument
