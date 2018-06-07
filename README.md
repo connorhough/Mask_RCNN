@@ -19,4 +19,4 @@ We have also streamlined the setup process of the original repo to get it up and
 
 After the first run, use the above command without the `--download=True` argument
 
-The parameter sweep can be run with `bash sweep.sh`
+The parameter sweep can be run with `sweep.sh`
