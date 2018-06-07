@@ -8,17 +8,18 @@ This is a fork of the [matterport/mask_rcnn repo](github.com/matterport/mask-rcn
 
 ## Setup
 
-We have also streamlined the setup process of the original repo to get it up and running quickly on the tensorflow_p36 environment of the AWS Deep Learning AMI (Ubuntu) Version 9.0. To do so, start up an instance with at least 100 GB of storage, ssh into it, and do:
+We have also streamlined the setup process of the original repo to get it up and running quickly on the tensorflow_p36 environment of the AWS Deep Learning AMI (Ubuntu) Version 10.0. To do so, start up an instance with at least 100 GB of storage, ssh into it, and do:
 
 1. `source activate tensorflow_p36`
 2. `git clone https://github.com/connorhough/mask_rcnn`
 3. `cd mask_rcnn`
 4. `pip install cython`
 5. `pip install -r requirements.txt`
-6. `python setup.py install`
-7. `wandb init`, then follow the init steps
-8. `wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco --download=True`
+6. `pip install tensorflow-gpu==1.7.0`
+7. `python setup.py install`
+8. `wandb init`, then follow the init steps
+9. `wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco --download=True`
 
 After the first run, use the above command without the `--download=True` argument
 
-The parameter sweep can be run with `sweep.sh`
+The parameter sweep can be run with `./sweep.sh`
