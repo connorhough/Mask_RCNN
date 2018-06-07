@@ -4,7 +4,7 @@ Mask R-CNN is a deep learning model for computer vision developed by the Faceboo
 
 ![Instance Segmentation Sample](assets/street.png)
 
-This is a fork of the [matterport/mask_rcnn repo](github.com/matterport/mask-rcnn) that we have set up to integrate with Weights and Biases (wandb). wandb is a cloud interface for tracking model parameters and performance, allowing machine learning teams to coordinate work in a way similar to github. [Here](https://app.wandb.ai/trentwatson1/mask-rcnn) are the results of our runs. For a more detailed overview of our process and results see our [blog post](medium.com).
+This is a fork of the [matterport/mask_rcnn repo](github.com/matterport/mask-rcnn) that we have set up to integrate with Weights and Biases (wandb). wandb is a cloud interface for tracking model parameters and performance, allowing machine learning teams to coordinate work in a way similar to github. [Here](https://app.wandb.ai/trentwatson1/mask-rcnn) are the results of our runs. For a more detailed overview of our process and results see our [blog post](https://medium.com/@connorandtrent/mask-r-cnn-hyperparameter-experiments-with-weights-and-biases-bd2319faae26).
 
 ## Setup
 
