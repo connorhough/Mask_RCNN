@@ -1,14 +1,14 @@
-## Intro
+## Introduction
 
-Mask R-CNN is a deep learning model for computer vision developed by the Facebook AI group that achieves state-of-the-art results on semantic segmentation (object recognition and pixel labeling) tasks. An implementation of the model is made available by Matterport on their [github page](github.com/matterport). The code in their repo works with MS Coco (a benchmark dataset for semantic segmentation) out of the box, but provides for easy extensibility to any kind of dataset or image segmentation task.
+Mask R-CNN is a cutting-edge deep learning model designed for computer vision tasks, developed by Facebook's AI group. It excels in semantic segmentation tasks, which include object recognition and pixel-level labeling. Matterport has provided an implementation of this model on their [GitHub page](github.com/matterport). The provided code is compatible with the MS Coco dataset—a benchmark dataset for semantic segmentation—right out of the gate, and is designed for easy adaptability to other datasets or image segmentation tasks.
 
 ![Instance Segmentation Sample](assets/street.png)
 
-This is a fork of the [matterport/mask_rcnn repo](github.com/matterport/mask-rcnn) that we have set up to integrate with Weights and Biases (wandb). wandb is a cloud interface for tracking model parameters and performance, allowing machine learning teams to coordinate work in a way similar to github. [Here](https://app.wandb.ai/trentwatson1/mask-rcnn) are the results of our runs. For a more detailed overview of our process and results see our [blog post](https://medium.com/@connorandtrent/mask-r-cnn-hyperparameter-experiments-with-weights-and-biases-bd2319faae26).
+This repository is a fork of the [matterport/mask_rcnn repo](github.com/matterport/mask-rcnn), enhanced to integrate with Weights and Biases (wandb). wandb is a cloud-based interface designed for tracking model parameters and performance, facilitating collaborative efforts among machine learning teams. The results of our model runs can be found [here](https://app.wandb.ai/trentwatson1/mask-rcnn). For an in-depth discussion on our process and findings, refer to our [blog post](https://medium.com/@connorandtrent/mask-r-cnn-hyperparameter-experiments-with-weights-and-biases-bd2319faae26).
 
 ## Setup
 
-We have also streamlined the setup process of the original repo to get it up and running quickly on the tensorflow_p36 environment of the AWS Deep Learning AMI (Ubuntu) Version 10.0. To do so, start up an instance with at least 100 GB of storage, ssh into it, and do:
+We've streamlined the setup procedure of the original repository to ensure a swift installation on the tensorflow_p36 environment of AWS Deep Learning AMI (Ubuntu) Version 10.0. To get started, initiate an instance with a minimum of 100 GB storage, SSH into it, and execute the following steps:
 
 1. `source activate tensorflow_p36`
 2. `git clone https://github.com/connorhough/mask_rcnn`
@@ -17,9 +17,9 @@ We have also streamlined the setup process of the original repo to get it up and
 5. `pip install -r requirements.txt`
 6. `pip install tensorflow-gpu==1.7.0`
 7. `python setup.py install`
-8. `wandb init`, then follow the init steps
-9. `wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco --download=True`
+8. Execute `wandb init`, then follow the on-screen instructions
+9. Run `wandb run samples/coco/coco.py train --model=imagenet --dataset=../coco --download=True`
 
-After the first run, use the above command without the `--download=True` argument
+For subsequent runs, use the above command without the `--download=True` argument.
 
-The parameter sweep can be run with `./sweep.sh`
+To execute a parameter sweep, run `./sweep.sh`.
